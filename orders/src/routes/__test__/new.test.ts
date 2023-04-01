@@ -1,0 +1,68 @@
+import request from "supertest";
+import { app } from "../../app";
+import mongoose from "mongoose";
+import { Ticket } from "../../models/tickets";
+import { Order, OrderStatus } from "../../models/orders";
+import { natsWrapper } from "../../nats-wrapper";
+
+it("returns an error if ticket doesnt exist", async () => {
+  const ticketId = new mongoose.Types.ObjectId();
+  await request(app)
+    .post(`/api/orders/${ticketId}`)
+    .set("Cookie", global.signin())
+    .send({ ticketId })
+    .expect(404);
+});
+xit("returns an error if ticket is already reserved", async () => {
+  const ticket = Ticket.build({
+    title: "morat",
+    price: 3000,
+    id: new mongoose.Types.ObjectId().toHexString(),
+  });
+  await ticket.save();
+
+  const order = Order.build({
+    ticket,
+    userId: "123123",
+    status: OrderStatus.Created,
+    expiresAt: new Date(),
+  });
+  await order.save();
+
+  await request(app)
+    .post("/api/orders")
+    .set("Cookie", global.signin())
+    .send({ ticketId: ticket.id })
+    .expect(400);
+});
+it("reserves a ticket ", async () => {
+  const ticket = Ticket.build({
+    title: "morat",
+    price: 3000,
+    id: new mongoose.Types.ObjectId().toHexString(),
+  });
+  await ticket.save();
+
+  await request(app)
+    .post("/api/orders")
+    .set("Cookie", global.signin())
+    .send({ ticketId: ticket.id })
+    .expect(201);
+});
+
+it("send new order event", async () => {
+  const ticket = Ticket.build({
+    title: "morat",
+    price: 3000,
+    id: new mongoose.Types.ObjectId().toHexString(),
+  });
+  await ticket.save();
+
+  await request(app)
+    .post("/api/orders")
+    .set("Cookie", global.signin())
+    .send({ ticketId: ticket.id })
+    .expect(201);
+
+  expect(natsWrapper.client.publish).toHaveBeenCalled();
+});
