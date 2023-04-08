@@ -12,7 +12,7 @@ router.get("/api/tickets/:id", async (req, res) => {
 
   res.send(ticket);
 });
-router.get("/api/nada", async (req, res) => {
+router.get("/api/nothing", async (req, res) => {
   console.log("Do nothing but will fix the shit");
 });
 
