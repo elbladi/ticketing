@@ -34,7 +34,6 @@ router.post(
   }
 );
 router.post("/api/nada", (req, res) => {
-  console.log("am i being hit?");
   return res.sendStatus(200);
 });
 
