@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
     
     - name: Build the Docker image
       run: cd auth && docker build -t bladorihuela/auth .
     
     - name: login to docker cli
-      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD .
+      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
